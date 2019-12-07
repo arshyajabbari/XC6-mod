@@ -542,8 +542,47 @@ getppid()
 	acquire(&ptable.lock);
 	p = ptable.proc;
 	int ppid = p->parent->pid;
-	cprintf("Parent pid is: %d \n", ppid);
 	release(&ptable.lock);
 	return ppid;
 }
-	
+
+int
+getChildren(int ppid)
+{
+	struct proc *p;
+	int out=0;
+	sti();
+	p=ptable.proc;
+	for(p = &ptable.proc[0]; p<&ptable.proc[NPROC]; p++){
+		acquire(&ptable.lock);
+		if(ppid == p->parent->pid){
+			out=((out*10) + p->pid);
+}
+		release(&ptable.lock);
+}
+	return out;
+}
+
+//	sti();
+//	argint(0, &ppid);
+//	int i, out =0;
+//	if(sys_getppid() == ppid ){
+//		for(i=0; i < myproc()->parent->number_of_children;i++){
+//			int temp= myproc()->number_of_children /10 ;
+//			out = out * 10;
+//			if(temp >0 )
+//				out = out*10;
+//			out = out + myproc()->parent->children[i];
+//									}
+//				}
+//	else{
+//		for(i=0; i < myproc()->parent->number_of_children;i++){
+//			int temp= myproc()->number_of_children /10 ;
+//			out = out * 10;
+//			if(temp >0 )
+//				out = out*10;
+//			out = out + myproc()->children[i];
+//		}
+//	return out;
+//}	
+//}

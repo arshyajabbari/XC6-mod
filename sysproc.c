@@ -95,3 +95,8 @@ int sys_getppid(void)
 	return getppid();
 }
 
+int sys_getChildren(int ppid)
+{
+	return getChildren(ppid);
+}
+
