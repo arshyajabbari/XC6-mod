@@ -216,8 +216,15 @@ fork(void)
 
   np->state = RUNNABLE;
 
-  release(&ptable.lock);
+//  if (curproc->childCount >=100 || curproc->childCount < 0)
+//	curproc->childCount = 0 ;
 
+  curproc->children[curproc->childCount]=pid;
+
+  curproc->childCount++;
+  
+  release(&ptable.lock);
+ 
   return pid;
 }
 
@@ -537,12 +544,7 @@ procdump(void)
 int 
 getppid()
 {
-	struct proc *p;
-	sti();
-	acquire(&ptable.lock);
-	p = ptable.proc;
-	int ppid = p->parent->pid;
-	release(&ptable.lock);
+	int ppid=myproc()->parent->pid;
 	return ppid;
 }
 
@@ -550,13 +552,14 @@ int
 getChildren(int ppid)
 {
 	struct proc *p;
+	argint(0,&ppid);
 	int out=0;
 	sti();
-	p=ptable.proc;
-	for(p = &ptable.proc[0]; p<&ptable.proc[NPROC]; p++){
+	p=myproc();
+	for(int i=0; i<p->parent->childCount; i++){
 		acquire(&ptable.lock);
 		if(ppid == p->parent->pid){
-			out=((out*10) + p->pid);
+			out=((out*10) + p->parent->children[i]);
 }
 		release(&ptable.lock);
 }
