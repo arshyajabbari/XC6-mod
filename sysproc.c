@@ -100,3 +100,7 @@ int sys_getChildren(int ppid)
 	return getChildren(ppid);
 }
 
+int sys_getCount(int sys_num)
+{
+	return getChildren(sys_num);
+}

@@ -51,6 +51,7 @@ struct proc {
   char name[16];               // Process name (debugging)
   int childCount;
   int children[100];
+  int count[24];
 };
 
 // Process memory is laid out contiguously, low addresses first:

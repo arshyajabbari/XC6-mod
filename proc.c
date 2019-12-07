@@ -566,26 +566,13 @@ getChildren(int ppid)
 	return out;
 }
 
-//	sti();
-//	argint(0, &ppid);
-//	int i, out =0;
-//	if(sys_getppid() == ppid ){
-//		for(i=0; i < myproc()->parent->number_of_children;i++){
-//			int temp= myproc()->number_of_children /10 ;
-//			out = out * 10;
-//			if(temp >0 )
-//				out = out*10;
-//			out = out + myproc()->parent->children[i];
-//									}
-//				}
-//	else{
-//		for(i=0; i < myproc()->parent->number_of_children;i++){
-//			int temp= myproc()->number_of_children /10 ;
-//			out = out * 10;
-//			if(temp >0 )
-//				out = out*10;
-//			out = out + myproc()->children[i];
-//		}
-//	return out;
-//}	
-//}
+int
+getCount(int sys_num)
+{
+//	int count=0;
+	argint(0,&sys_num);
+	if(sys_num < 1 || sys_num >24)
+		return -1;
+	return myproc()->count[sys_num];
+}
+

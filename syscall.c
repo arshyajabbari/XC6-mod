@@ -105,6 +105,7 @@ extern int sys_write(void);
 extern int sys_uptime(void);
 extern int sys_getppid(void);
 extern int sys_getChildren(void);
+extern int sys_getCount(void);
 
 static int (*syscalls[])(void) = {
 [SYS_fork]    sys_fork,
@@ -130,6 +131,7 @@ static int (*syscalls[])(void) = {
 [SYS_close]   sys_close,
 [SYS_getppid] sys_getppid,
 [SYS_getChildren] sys_getChildren,
+[SYS_getCount] sys_getCount,
 };
 
 void
@@ -141,9 +143,12 @@ syscall(void)
   num = curproc->tf->eax;
   if(num > 0 && num < NELEM(syscalls) && syscalls[num]) {
     curproc->tf->eax = syscalls[num]();
+    curproc->count[num]=curproc->count[num]+1;
   } else {
     cprintf("%d %s: unknown sys call %d\n",
             curproc->pid, curproc->name, num);
     curproc->tf->eax = -1;
   }
+ // for (int i=0 ; i<24;i++)
+//	cprintf("%d index is: %d\n",i, curproc->count[i]);
 }
