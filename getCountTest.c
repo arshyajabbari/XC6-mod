@@ -10,10 +10,7 @@ int main(int argc, char *argv[])
 	wait();
 	int sys_num=3;
 	int count=getCount(sys_num);
-	wait();
-	wait();
-	wait();
-	
+
 	printf(0,"system call count is:%d\n",count);
 	exit();
 }

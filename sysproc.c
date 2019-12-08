@@ -102,5 +102,5 @@ int sys_getChildren(int ppid)
 
 int sys_getCount(int sys_num)
 {
-	return getChildren(sys_num);
+	return getCount(sys_num);
 }
