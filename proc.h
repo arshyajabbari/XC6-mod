@@ -52,6 +52,8 @@ struct proc {
   int childCount;
   int children[100];
   int count[24];
+  int priority; 	       //process priority from [1,5]
+  int calculatedPriority;      //real priority measurment
 };
 
 // Process memory is laid out contiguously, low addresses first:
