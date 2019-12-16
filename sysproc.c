@@ -104,3 +104,8 @@ int sys_getCount(int sys_num)
 {
 	return getCount(sys_num);
 }
+
+int sys_changePriority(int new_priority)
+{
+	return getCount(new_priority);
+}

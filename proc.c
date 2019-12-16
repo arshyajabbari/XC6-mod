@@ -660,4 +660,15 @@ getCount(int sys_num)
 	return myproc()->count[sys_num];
 }
 
+int
+changePriority(int new_priority)
+{
+	struct proc *p;
+	p=myproc();
+	p->priority = new_priority;
+	return 1;
+	return -1;
+}
+
+
 
