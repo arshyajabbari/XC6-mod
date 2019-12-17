@@ -680,5 +680,22 @@ changePriority(int new_priority)
 	return -1;
 }
 
+int
+changePolicy(int new_policy)
+{
+	if(new_policy == 0){
+		sflag = 0;
+		return 1;}
+
+	else if(new_policy == 1){
+		sflag = 1;
+		return 1;}
+
+	else{
+		sflag = 0;
+		return 1;}
+	return -1; 
+}
+
 
 

@@ -109,3 +109,8 @@ int sys_changePriority(int new_priority)
 {
 	return getCount(new_priority);
 }
+
+int sys_changePolicy(int new_policy)
+{
+	return getCount(new_policy);
+}
