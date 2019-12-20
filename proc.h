@@ -54,7 +54,23 @@ struct proc {
   int count[24];
   int priority; 	       //process priority from [1,5]
   int calculatedPriority;      //real priority measurment
+
+  int creationTime;
+  int terminationTime;
+  int sleepingTime;
+  int runningTime;
+  int readyTime;
+
 };
+
+struct timeVariables{
+  int creationTime;
+  int terminationTime;
+  int sleepingTime;
+  int runningTime;
+  int readyTime;
+};
+
 
 // Process memory is laid out contiguously, low addresses first:
 //   text

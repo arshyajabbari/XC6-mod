@@ -10,9 +10,16 @@
 
 // Interrupt descriptor table (shared by all CPUs).
 struct gatedesc idt[256];
+struct {
+  struct spinlock lock;
+  struct proc proc[NPROC];
+} ptable;
+
 extern uint vectors[];  // in vectors.S: array of 256 entry pointers
 struct spinlock tickslock;
 uint ticks;
+
+//struct timeVariables time;
 
 void
 tvinit(void)
@@ -36,6 +43,7 @@ idtinit(void)
 void
 trap(struct trapframe *tf)
 {
+  struct proc *p;
   if(tf->trapno == T_SYSCALL){
     if(myproc()->killed)
       exit();
@@ -54,6 +62,19 @@ trap(struct trapframe *tf)
       wakeup(&ticks);
       release(&tickslock);
     }
+//	if(myproc()) {
+  //     if(myproc()->state == RUNNING)
+    //       time->runningTime++;
+      // else if(myproc()->state == SLEEPING)
+        //  time->sleepingTime++;
+    // }
+  acquire(&ptable.lock);
+  for(p = ptable.proc; p < &ptable.proc[NPROC]; p++)
+	if(p->state == RUNNING)
+           p->runningTime++;
+       else if(p->state == SLEEPING)
+          p->sleepingTime++;
+  release(&ptable.lock);
     lapiceoi();
     break;
   case T_IRQ0 + IRQ_IDE:

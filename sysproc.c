@@ -114,3 +114,8 @@ int sys_changePolicy(int new_policy)
 {
 	return getCount(new_policy);
 }
+
+int sys_waitForChild(struct timeVariables* times)
+{
+	return waitForChild(times);
+}
