@@ -119,3 +119,13 @@ int sys_waitForChild(struct timeVariables* times)
 {
 	return waitForChild(times);
 }
+
+int sys_ticketlockInit(void)
+{
+  return ticketlockInit();
+}
+
+int sys_ticketlockTest(void)
+{
+  return ticketlockTest();
+}

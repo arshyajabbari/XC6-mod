@@ -127,6 +127,8 @@ int   		getCount(int);
 int		changePriority(int);
 int		changePolicy(int);
 int		waitForChild(struct timeVariables*);
+int  ticketlockInit(void);
+int  ticketlockTest(void);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

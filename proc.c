@@ -6,7 +6,12 @@
 #include "x86.h"
 #include "proc.h"
 #include "spinlock.h"
+#include "ticketlock.h"
 int sflag;
+struct ticketlock tl;
+struct ticketlock mutex, write;
+int sharedCounter = 0;
+int readerCount=0;
 
 struct {
   struct spinlock lock;
@@ -39,10 +44,10 @@ struct cpu*
 mycpu(void)
 {
   int apicid, i;
-  
+
   if(readeflags()&FL_IF)
     panic("mycpu called with interrupts enabled\n");
-  
+
   apicid = lapicid();
   // APIC IDs are not guaranteed to be contiguous. Maybe we should have
   // a reverse map, or reserve a register to store &cpus[i].
@@ -139,7 +144,7 @@ userinit(void)
   extern char _binary_initcode_start[], _binary_initcode_size[];
 
   p = allocproc();
-  
+
   initproc = p;
   if((p->pgdir = setupkvm()) == 0)
     panic("userinit: out of memory?");
@@ -237,9 +242,9 @@ fork(void)
   curproc->children[curproc->childCount]=pid;
 
   curproc->childCount++;
-  
+
   release(&ptable.lock);
- 
+
   return pid;
 }
 
@@ -282,7 +287,7 @@ exit(void)
         wakeup1(initproc);
     }
   }
-  
+
   acquire(&tickslock);
   curproc->terminationTime = ticks;
   curproc->readyTime = (curproc->terminationTime - curproc->creationTime) - curproc->sleepingTime - curproc->runningTime;
@@ -292,7 +297,7 @@ exit(void)
   curproc->state = ZOMBIE;
   sched();
   panic("zombie exit");
-  
+
 }
 
 // Wait for a child process to exit and return its pid.
@@ -303,7 +308,7 @@ wait(void)
   struct proc *p;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -346,7 +351,7 @@ scheduler1(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
     // Enable interrupts on this processor.
     sti();
 
@@ -384,11 +389,11 @@ scheduler2(void)
   struct proc *p1;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
     // Enable interrupts on this processor.
-    sti(); 
-  
-    struct proc *highP ;	
+    sti();
+
+    struct proc *highP ;
     // Loop over process table looking for process to run.
     acquire(&ptable.lock);
     for(p = ptable.proc; p < &ptable.proc[NPROC]; p++){
@@ -438,14 +443,14 @@ scheduler(void)
   struct proc *p;
   struct cpu *c = mycpu();
   c->proc = 0;
-  
+
   for(;;){
     if (sflag==1)
 	scheduler1();
     else if(sflag==2)
 	scheduler2();
     else
-	
+
     // Enable interrupts on this processor.
     sti();
 
@@ -538,7 +543,7 @@ void
 sleep(void *chan, struct spinlock *lk)
 {
   struct proc *p = myproc();
-  
+
   if(p == 0)
     panic("sleep");
 
@@ -654,7 +659,7 @@ procdump(void)
 }
 
 //current process status
-int 
+int
 getppid()
 {
 	int ppid=myproc()->parent->pid;
@@ -713,7 +718,7 @@ changePolicy(int new_policy)
 	else{
 		sflag = 0;
 		return 1;}
-	return -1; 
+	return -1;
 }
 
 int
@@ -723,7 +728,7 @@ waitForChild(struct timeVariables* times)
 //	struct proc *child;
   int havekids, pid;
   struct proc *curproc = myproc();
-  
+
   acquire(&ptable.lock);
   for(;;){
     // Scan through table looking for exited children.
@@ -768,3 +773,48 @@ waitForChild(struct timeVariables* times)
   }
 }
 
+int
+acquire_ticket(struct ticketlock *lk)
+{
+  int ticket;
+  //pushcli(); // disable interrupts to avoid deadlock.
+
+  ticket = fetch_and_add(&lk->ticket, 1);
+  while(lk->turn != ticket)
+    sleep(lk,0);
+
+  // Record info about lock acquisition for debugging
+  return ticket;
+}
+
+// Release the lock.
+void
+release_ticket(struct ticketlock *lk)
+{
+
+  fetch_and_add(&lk->turn, 1);
+  wakeup(lk);
+
+
+  //popcli();
+}
+
+// Check whether this cpu is holding the lock.
+
+
+int
+ticketlockInit(void)
+{
+    tl.ticket = 0;
+    tl.turn = 0;
+    return 0;
+}
+int
+ticketlockTest(void)
+{
+  int ticket;
+  ticket=acquire_ticket(&tl);
+  microdelay(1000);
+  release_ticket(&tl);
+return ticket;
+}
