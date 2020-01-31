@@ -129,6 +129,8 @@ int		changePolicy(int);
 int		waitForChild(struct timeVariables*);
 int  ticketlockInit(void);
 int  ticketlockTest(void);
+int  rwinit(void);
+int  rwtest(int);
 
 // swtch.S
 void            swtch(struct context**, struct context*);

@@ -129,3 +129,11 @@ int sys_ticketlockTest(void)
 {
   return ticketlockTest();
 }
+
+int sys_rwinit(void){
+  return rwinit();
+}
+
+int sys_rwtest(int pattern){
+  return rwtest(pattern);
+}

@@ -10,6 +10,7 @@
 int sflag;
 struct ticketlock tl;
 struct ticketlock mutex, write;
+struct rwlock     rlock;
 int sharedCounter = 0;
 int readerCount=0;
 
@@ -817,4 +818,55 @@ ticketlockTest(void)
   microdelay(1000);
   release_ticket(&tl);
 return ticket;
+}
+
+int
+rwinit(void){
+    (rlock.mutex).ticket = 0;
+    (rlock.rw_mutex).turn = 0;
+    rlock.count = 0;
+    return 0;
+}
+
+
+void acquire_writer(struct rwlock *lock){
+    acquire_ticket(&(lock->rw_mutex));
+}
+void release_writer(struct rwlock *lock){
+    release_ticket(&(lock->rw_mutex));
+}
+void acquire_reader(struct rwlock *lock){
+    acquire_ticket(&(lock->mutex));
+    lock->count++;
+    if(lock->count == 1)
+        acquire_ticket(&(lock->rw_mutex));
+    release_ticket(&(lock->mutex));
+}
+void release_reader(struct rwlock *lock){
+    acquire_ticket(&(lock->mutex));
+    lock->count--;
+    if(lock->count == 0)
+        release_ticket(&(lock->rw_mutex));
+    release_ticket(&(lock->mutex));
+}
+
+
+int
+rwtest(int pattern){
+      argint(0, &pattern);
+      // Writer
+      if (pattern == 1) {
+          acquire_writer(&rlock);
+          microdelay(100);
+          sharedCounter++;
+          release_writer(&rlock);
+      }
+          // Reader
+      else if (pattern == 0){
+        acquire_reader(&rlock);
+        microdelay(100);
+        release_reader(&rlock);
+      }
+      //releaseticketlock(&tl)
+      return sharedCounter;
 }
